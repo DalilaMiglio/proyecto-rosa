@@ -4,7 +4,6 @@ import {
   deleteDoc,
   doc,
   getDocs,
-  orderBy,
   query,
   serverTimestamp,
   updateDoc,
@@ -16,19 +15,21 @@ import { Task } from "../../types/task";
 const tasksRef = collection(db, "tasks");
 
 export async function getTasks(userId: string): Promise<Task[]> {
-  const q = query(
-    tasksRef,
-    where("userId", "==", userId),
-    orderBy("createdAt", "desc")
-  );
-
+  const q = query(tasksRef, where("userId", "==", userId));
   const snapshot = await getDocs(q);
 
-  return snapshot.docs.map((document) => ({
-    id: document.id,
-    ...document.data(),
-    createdAt: document.data().createdAt?.toDate?.() ?? new Date(),
-  })) as Task[];
+  return snapshot.docs.map((document) => {
+    const data = document.data();
+
+    return {
+      id: document.id,
+      title: data.title ?? "",
+      description: data.description ?? "",
+      completed: data.completed ?? false,
+      userId: data.userId ?? "",
+      createdAt: data.createdAt?.toDate?.() ?? new Date(),
+    };
+  });
 }
 
 export async function createTask(
@@ -43,20 +44,25 @@ export async function createTask(
     description,
     completed,
     userId,
+    email,
     createdAt: serverTimestamp(),
   });
 
-  await fetch("/api/send-task-email", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({
-      to: email,
-      title,
-      description,
-    }),
-  });
+  try {
+    await fetch("/api/send-task-email", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        to: email,
+        title,
+        description,
+      }),
+    });
+  } catch (error) {
+    console.warn("La tarea se creó, pero el email no se pudo enviar.", error);
+  }
 
   return task;
 }

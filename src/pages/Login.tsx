@@ -14,13 +14,13 @@ export function Login() {
       await login(email, password);
       navigate("/tasks");
     } catch {
-      alert("No se pudo iniciar sesión. Revisa tus datos.");
+      alert("No se pudo iniciar sesión. Revisa el correo y la contraseña.");
     }
   }
 
   return (
     <main className="center-page">
-      <form className="card auth-card" onSubmit={handleSubmit}>
+      <form className="auth-card" onSubmit={handleSubmit}>
         <h1>Iniciar sesión</h1>
         <p>Accede a tu cuenta para gestionar tus tareas</p>
 
@@ -42,7 +42,9 @@ export function Login() {
           required
         />
 
-        <button>→ Ingresar</button>
+        <button type="submit">→ Ingresar</button>
+
+        
 
         <span className="small">
           ¿Sin cuenta? <Link to="/register">Crea una</Link>

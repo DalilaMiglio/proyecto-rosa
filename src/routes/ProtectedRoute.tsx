@@ -1,8 +1,9 @@
+import { ReactNode } from "react";
 import { Navigate } from "react-router-dom";
 import { useAuth } from "../hooks/useAuth";
 
 interface Props {
-  children: JSX.Element;
+  children: ReactNode;
 }
 
 export function ProtectedRoute({ children }: Props) {
@@ -10,7 +11,7 @@ export function ProtectedRoute({ children }: Props) {
 
   if (loading) return <p className="loading">Cargando...</p>;
 
-  if (!user) return <Navigate to="/login" />;
+  if (!user) return <Navigate to="/login" replace />;
 
-  return children;
+  return <>{children}</>;
 }

@@ -1,11 +1,11 @@
 import { useEffect, useState } from "react";
-import { Task } from "../types/task";
 import {
   createTask,
   deleteTask,
   getTasks,
   updateTask,
 } from "../features/tasks/taskService";
+import { Task } from "../types/task";
 
 export function useTasks(userId?: string, email?: string | null) {
   const [tasks, setTasks] = useState<Task[]>([]);
@@ -15,26 +15,51 @@ export function useTasks(userId?: string, email?: string | null) {
     if (!userId) return;
 
     setLoading(true);
-    const data = await getTasks(userId);
-    setTasks(data);
-    setLoading(false);
+
+    try {
+      const data = await getTasks(userId);
+      setTasks(data);
+    } catch (error) {
+      console.error("Error cargando tareas:", error);
+      alert("No se pudieron cargar las tareas. Revisá Firestore.");
+    } finally {
+      setLoading(false);
+    }
   }
 
   async function addTask(title: string, description: string, completed: boolean) {
-    if (!userId || !email) return;
+    if (!userId || !email) {
+      alert("No hay usuario autenticado.");
+      return;
+    }
 
-    await createTask(title, description, completed, userId, email);
-    await loadTasks();
+    try {
+      await createTask(title, description, completed, userId, email);
+      await loadTasks();
+    } catch (error) {
+      console.error("Error creando tarea:", error);
+      alert("No se pudo crear la tarea. Revisá las reglas de Firestore.");
+    }
   }
 
   async function toggleTask(task: Task) {
-    await updateTask(task.id, { completed: !task.completed });
-    await loadTasks();
+    try {
+      await updateTask(task.id, { completed: !task.completed });
+      await loadTasks();
+    } catch (error) {
+      console.error("Error actualizando tarea:", error);
+      alert("No se pudo actualizar la tarea.");
+    }
   }
 
   async function removeTask(taskId: string) {
-    await deleteTask(taskId);
-    await loadTasks();
+    try {
+      await deleteTask(taskId);
+      await loadTasks();
+    } catch (error) {
+      console.error("Error eliminando tarea:", error);
+      alert("No se pudo eliminar la tarea.");
+    }
   }
 
   useEffect(() => {

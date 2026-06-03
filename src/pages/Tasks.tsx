@@ -1,4 +1,5 @@
 import { FormEvent, useState } from "react";
+import { logout } from "../features/auth/authService";
 import { useAuth } from "../hooks/useAuth";
 import { useTasks } from "../hooks/useTasks";
 
@@ -27,15 +28,20 @@ export function Tasks() {
 
   return (
     <main className="tasks-page">
-      <section className="page-title">
-        <h1>📋 Mis Tareas</h1>
+      <section className="tasks-header">
+        <div>
+          <h1>📋 Mis Tareas</h1>
+          <p>
+            Sesión: <strong>{user?.email}</strong>
+          </p>
+        </div>
+
+        <button onClick={logout} className="logout-button">
+          Cerrar sesión
+        </button>
       </section>
 
-      <p>
-        Sesión: <strong>{user?.email}</strong>
-      </p>
-
-      <form className="card task-form" onSubmit={handleSubmit}>
+      <form className="task-form" onSubmit={handleSubmit}>
         <h2>Crear tarea</h2>
 
         <label>Título de la tarea</label>
@@ -48,7 +54,7 @@ export function Tasks() {
 
         <label>Descripción</label>
         <textarea
-          placeholder="Agrega detalles sobre la tarea"
+          placeholder="Agrega detalles sobre la tarea (opcional)"
           value={description}
           onChange={(e) => setDescription(e.target.value)}
         />
@@ -62,28 +68,44 @@ export function Tasks() {
           Marcar como completada al crear
         </label>
 
-        <button>Crear tarea</button>
+        <button type="submit">Crear tarea</button>
       </form>
+
+      <h2 className="tasks-subtitle">Mis tareas</h2>
 
       <section className="tasks-list">
         {loading && <p>Cargando tareas...</p>}
 
+        {!loading && tasks.length === 0 && (
+          <p className="empty">Todavía no creaste tareas.</p>
+        )}
+
         {tasks.map((task) => (
-          <article key={task.id} className="card task-item">
-            <div>
+          <article key={task.id} className="task-item">
+            <button
+              type="button"
+              className={task.completed ? "status completed" : "status"}
+              onClick={() => toggleTask(task)}
+            >
+              {task.completed ? "✓" : ""}
+            </button>
+
+            <div className="task-content">
               <h3 className={task.completed ? "done" : ""}>{task.title}</h3>
               <p>{task.description || "Sin descripción"}</p>
-              <small>
-                Estado: {task.completed ? "Completada" : "Pendiente"}
-              </small>
+              <small>{task.completed ? "Completada" : "Pendiente"}</small>
             </div>
 
             <div className="actions">
-              <button onClick={() => toggleTask(task)}>
-                {task.completed ? "Pendiente" : "Completar"}
+              <button type="button" onClick={() => toggleTask(task)}>
+                ✎
               </button>
-              <button className="danger" onClick={() => removeTask(task.id)}>
-                Eliminar
+              <button
+                type="button"
+                className="delete-button"
+                onClick={() => removeTask(task.id)}
+              >
+                🗑
               </button>
             </div>
           </article>

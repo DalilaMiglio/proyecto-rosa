@@ -15,7 +15,7 @@ export default function App() {
       <Navbar email={user?.email} />
 
       <Routes>
-        <Route path="/" element={<Navigate to="/tasks" />} />
+        <Route path="/" element={<Navigate to="/tasks" replace />} />
         <Route path="/about" element={<About />} />
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
