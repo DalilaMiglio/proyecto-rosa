@@ -1,4 +1,5 @@
 import { FormEvent, useState } from "react";
+import { TaskCard } from "../components/TaskCard";
 import { logout } from "../features/auth/authService";
 import { useAuth } from "../hooks/useAuth";
 import { useTasks } from "../hooks/useTasks";
@@ -81,34 +82,12 @@ export function Tasks() {
         )}
 
         {tasks.map((task) => (
-          <article key={task.id} className="task-item">
-            <button
-              type="button"
-              className={task.completed ? "status completed" : "status"}
-              onClick={() => toggleTask(task)}
-            >
-              {task.completed ? "✓" : ""}
-            </button>
-
-            <div className="task-content">
-              <h3 className={task.completed ? "done" : ""}>{task.title}</h3>
-              <p>{task.description || "Sin descripción"}</p>
-              <small>{task.completed ? "Completada" : "Pendiente"}</small>
-            </div>
-
-            <div className="actions">
-              <button type="button" onClick={() => toggleTask(task)}>
-                ✎
-              </button>
-              <button
-                type="button"
-                className="delete-button"
-                onClick={() => removeTask(task.id)}
-              >
-                🗑
-              </button>
-            </div>
-          </article>
+          <TaskCard
+            key={task.id}
+            task={task}
+            onToggle={toggleTask}
+            onDelete={removeTask}
+          />
         ))}
       </section>
     </main>
